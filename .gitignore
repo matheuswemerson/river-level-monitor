@@ -1,0 +1,12 @@
+# Dependências
+node_modules/
+
+# Segredos (nunca commitar)
+.env
+secrets.h
+
+# Sistema / editor
+.DS_Store
+Thumbs.db
+.vscode/
+*.log

@@ -1,0 +1,124 @@
+@baseUrl = http://localhost:3000
+# Se você configurou DEVICE_API_KEY no .env, coloque a mesma chave aqui:
+@apiKey = 
+
+### 📍 Ver todos os locais cadastrados (use para descobrir o local_id)
+GET {{baseUrl}}/api/locais
+
+### 🔍 Leituras do dia mais recente (padrão: local_id=1, Tanque Principal)
+GET {{baseUrl}}/api/leituras
+
+### Filtrando pelo local_id=2 (Rio Jaboatão - Ponto A)
+GET {{baseUrl}}/api/leituras?local_id=2
+
+### 📅 Leituras de uma data específica (YYYY-MM-DD)
+GET {{baseUrl}}/api/leituras/2025-12-05
+
+### 📊 Histórico completo por local
+GET {{baseUrl}}/api/todas-leituras?local_id=1
+
+### Histórico dos últimos 7 dias
+GET {{baseUrl}}/api/todas-leituras?local_id=1&dias=7
+
+### 🚨 Alertas ativos (último nível >= 50%)
+GET {{baseUrl}}/api/alertas-atuais
+
+### ➕ Inserir nova leitura (nivel de 0 a 100; data/hora são geradas pelo servidor)
+POST {{baseUrl}}/api/leituras
+Content-Type: application/json
+x-api-key: {{apiKey}}
+
+{
+  "nivel": 50,
+  "local_id": 1
+}
+
+### ➕ Inserir leitura no Rio Jaboatão (local_id=2)
+POST {{baseUrl}}/api/leituras
+Content-Type: application/json
+x-api-key: {{apiKey}}
+
+{
+  "nivel": 25,
+  "local_id": 2
+}
+
+### ❌ Erro esperado 400: faltando local_id
+POST {{baseUrl}}/api/leituras
+Content-Type: application/json
+x-api-key: {{apiKey}}
+
+{
+  "nivel": 50
+}
+
+### ❌ Erro esperado 400: nível fora de 0–100
+POST {{baseUrl}}/api/leituras
+Content-Type: application/json
+x-api-key: {{apiKey}}
+
+{
+  "nivel": 150,
+  "local_id": 1
+}
+
+### ❌ Erro esperado 404: local inexistente
+POST {{baseUrl}}/api/leituras
+Content-Type: application/json
+x-api-key: {{apiKey}}
+
+{
+  "nivel": 50,
+  "local_id": 999
+}
+
+### 🔐 Login de administrador (guarda o token para as próximas requisições)
+# @name login
+POST {{baseUrl}}/api/login
+Content-Type: application/json
+
+{
+  "login": "admin",
+  "senha": "123456"
+}
+
+###
+@token = {{login.response.body.token}}
+
+### ➕ Criar local (precisa do token)
+POST {{baseUrl}}/api/admin/locais
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nome": "Local de teste",
+  "descricao": "Criado pelo test.http",
+  "latitude": -8.05,
+  "longitude": -34.88,
+  "nivel_recomendado": 80
+}
+
+### ❌ Erro esperado 401: criar local sem token
+POST {{baseUrl}}/api/admin/locais
+Content-Type: application/json
+
+{
+  "nome": "Sem token",
+  "latitude": -8.05,
+  "longitude": -34.88
+}
+
+### ✏️ Editar local (troque o 3 pelo id do local criado)
+PUT {{baseUrl}}/api/admin/locais/3
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nome": "Local de teste (editado)",
+  "latitude": -8.05,
+  "longitude": -34.88
+}
+
+### 🗑️ Excluir local (troque o 3 pelo id do local criado)
+DELETE {{baseUrl}}/api/admin/locais/3
+Authorization: Bearer {{token}}

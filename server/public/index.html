@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitoramento de Nível</title>
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+<body>
+
+<header class="main-header">
+  <img src="./img/facepe.png" alt="Logo FACEPE" class="logo-facepe">
+  <button id="btnLoginHeader" onclick="abrirLogin()" class="btn-login-header">Login</button>
+  </header>
+
+<div class="container">
+  <h1>Nível da Água</h1>
+
+  <div id="gaugeWrapper">
+    <canvas id="nivelGauge"></canvas>
+    <div id="percentDisplay">--%</div>
+  </div>
+<p id="avisoGauge" style="display:none; color:#999; text-align:center;">
+  Nenhum dado disponível para este local.
+</p>
+  <div class="info">
+    <p><strong>Local:</strong> <span id="local">--</span></p>
+    <p><strong>Última medição:</strong> <span id="data">--/--/----</span> às <span id="hora">--:--</span></p>
+    <p><strong>Máximo do dia:</strong> <span id="maximo">--%</span></p>
+  </div>
+  <div class="buttons">
+    <button onclick="mostrarHistorico()">Histórico</button>
+    <button onclick="mostrarAlertasAtuais()">Alertas</button>
+    <button onclick="mostrarInfo()">Informações</button>
+  </div>
+
+  <div class="specs">
+    <h3>Opções extras</h3>
+    <div class="specs-grid">
+
+      <button onclick="abrirRioInfo()">
+        <img src="./img/rio.png" alt="Nível do Rio">
+        <span class="hover-text">Informações do Rio</span>
+      </button>
+
+      <button onclick="mostrarMapa()">
+        <img src="./img/local.png" alt="Mapa de Locais">
+        <span class="hover-text">Mapa de Locais</span>
+      </button>
+
+      <button onclick="mostrarLocais()">
+        <img src="./img/documento.png" alt="Locais de monitoramento">
+        <span class="hover-text">Locais de Monitoramento</span>
+      </button>
+
+      <button style="display: none;">
+        <img src="./img/sensor.png" alt="Detalhes do Sensor">
+        <span class="hover-text">Detalhes do Sensor</span>
+      </button>
+
+      <button onclick="abrirConfig()">
+        <img src="./img/engrenagem.png" alt="Configurações">
+        <span class="hover-text">Configurações</span>
+      </button>
+
+      <button id="btnEditarAdmin" style="display: none;" onclick="abrirAdminLocais()">
+        <img src="./img/editar.png" alt="Editar Locais">
+        <span class="hover-text">Gerenciar Locais</span>
+      </button>
+
+    </div>
+  </div>
+
+  <div id="historicoSection" class="hidden-section">
+    <div class="modal-header">
+      <button class="modal-back-btn" onclick="fecharHistorico()">&#8592;</button>
+      <h2>Histórico de Medições</h2>
+    </div>
+    <ul id="historicoList"></ul>
+  </div> 
+  
+  <div id="infoSection" class="hidden-section">
+  <div class="modal-header">
+      <button class="modal-back-btn" onclick="fecharInfo()">&#8592;</button>
+      <h2>Informações Detalhadas</h2>
+    </div>
+
+    <div id="grafico-filtros" class="grafico-filtros">
+      <button id="btn-7d" class="filtro-btn active" onclick="atualizarGraficoInfo(7)">Últimos 7 dias</button>
+      <button id="btn-30d" class="filtro-btn" onclick="atualizarGraficoInfo(30)">Últimos 30 dias</button>
+      <button id="btn-all" class="filtro-btn" onclick="atualizarGraficoInfo(null)">Todo o Período</button>
+    </div>
+    <canvas id="graficoInfo"></canvas>
+    </div>
+  <div id="alertasSection" class="hidden-section">
+    <div class="modal-header">
+      <button class="modal-back-btn" onclick="fecharAlertas()">&#8592;</button>
+      <h2>Alertas de Nível</h2>
+    </div>
+    <ul id="listaAlertas"></ul>
+  </div>
+
+  <div id="locaisSection" class="hidden-section">
+    <div class="modal-header">
+      <button class="modal-back-btn" onclick="fecharLocais()">&#8592;</button>
+      <h2>Locais de Monitoramento</h2>
+    </div>
+    <ul id="listaLocais"></ul>
+  </div>
+
+  <div id="mapSection" class="hidden-section">
+    <div class="modal-header">
+      <button class="modal-back-btn" onclick="fecharMapa()">&#8592;</button>
+      <h2>Mapa de Locais</h2>
+    </div>
+    <div id="mapContainer"></div> 
+  </div>
+
+<div id="loginModal" class="hidden-section">
+      <div class="modal-header">
+          <button class="modal-back-btn" onclick="fecharLogin()">&#8592;</button>
+          <h2>Acesso Administrativo</h2>
+      </div>
+      <div class="form-login">
+          <input type="text" id="loginUser" placeholder="Usuário" class="input-padrao">
+          <input type="password" id="loginPass" placeholder="Senha" class="input-padrao">
+          <button onclick="fazerLogin()" class="btn-padrao">Entrar</button>
+      </div>
+  </div>
+
+  <div id="adminLocaisModal" class="hidden-section" style="max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+          <button class="modal-back-btn" onclick="fecharAdminLocais()">&#8592;</button>
+          <h2>Gerenciar Locais</h2>
+      </div>
+      
+      <div class="admin-form-container">
+          <input type="hidden" id="adminIdLocal"> <label>Nome do Local:</label>
+          <input type="text" id="adminNome" class="input-padrao">
+          
+          <label>Descrição:</label>
+          <textarea id="adminDescricao" class="input-padrao" rows="3"></textarea>
+          <label>Nível Máx. Recomendado (%):</label>
+          <input type="number" id="adminNivelRec" class="input-padrao" placeholder="Ex: 80">
+
+          <label>Altura Máx. Histórica:</label>
+          <input type="text" id="adminAlturaHist" class="input-padrao" placeholder="Ex: 2.5m (Em 2010)">
+
+          <label>Informações Detalhadas:</label>
+          <textarea id="adminInfoDet" class="input-padrao" rows="3"></textarea>
+          
+          <div class="coords-row">
+            <div>
+                <label>Latitude:</label>
+                <input type="number" step="any" id="adminLat" class="input-padrao">
+            </div>
+            <div>
+                <label>Longitude:</label>
+                <input type="number" step="any" id="adminLon" class="input-padrao">
+            </div>
+          </div>
+
+          <div class="admin-actions">
+              <button onclick="salvarLocal()" class="btn-padrao verde">Salvar Local</button>
+              <button onclick="limparFormAdmin()" class="btn-padrao cinza">Novo / Limpar</button>
+          </div>
+
+      </div>
+
+      <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
+
+      <h3>Locais Existentes</h3>
+      <ul id="adminListaLocais" class="lista-admin"></ul>
+  </div>
+
+  <div id="rioInfoModal" class="hidden-section">
+    <div class="modal-header">
+        <button class="modal-back-btn" onclick="fecharRioInfo()">&#8592;</button>
+        <h2>Detalhes do Rio</h2>
+    </div>
+    <div style="text-align: left; padding: 10px;">
+        <h3 id="rioInfoNome" style="color: #646F93; margin-top:0;">--</h3>
+        
+        <p><strong>Descrição:</strong><br> <span id="rioInfoDesc">--</span></p>
+        <hr style="border:0; border-top:1px solid #eee;">
+        
+        <p><strong>⚠️ Nível Máximo Recomendado:</strong> <span id="rioInfoRec">--</span>%</p>
+        <p><strong>🌊 Altura Máxima Histórica:</strong> <span id="rioInfoHist">--</span></p>
+        
+        <div style="background: #f9f9f9; padding: 10px; border-radius: 8px; margin-top: 15px;">
+            <strong>ℹ️ Informações Detalhadas:</strong><br>
+            <span id="rioInfoDetalhe">--</span>
+        </div>
+    </div>
+</div>
+
+<div id="configModal" class="hidden-section">
+    <div class="modal-header">
+        <button class="modal-back-btn" onclick="fecharConfig()">&#8592;</button>
+        <h2>Configurações</h2>
+    </div>
+    <div style="text-align: left; padding: 10px;">
+        
+        <div class="config-item" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+            <span>🔔 <strong>Notificações de Medição</strong><br><small style="color:#666">Receber alertas de novos dados</small></span>
+            <input type="checkbox" id="checkNotificacoes" onchange="toggleNotificacoes()" checked style="transform: scale(1.5);">
+        </div>
+
+        <hr style="border:0; border-top:1px solid #eee; margin: 20px 0;">
+
+        <div id="areaLoginConfig">
+             <p style="text-align:center; color:#666;">Você não está logado.</p>
+             <button onclick="fecharConfig(); abrirLogin();" class="btn-padrao">Fazer Login</button>
+        </div>
+
+        <div id="areaLogoutConfig" style="display:none;">
+            <p>Logado como: <strong id="lblUsuarioLogado">Admin</strong></p>
+            <button onclick="fazerLogout()" class="btn-padrao vermelho">Sair da Conta</button>
+        </div>
+
+    </div>
+</div>
+
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script src="./js/notifications.js"></script> 
+  <script src="script.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/admin.js"></script>
+</body>
+</html>
