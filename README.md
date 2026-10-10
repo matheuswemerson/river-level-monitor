@@ -4,7 +4,24 @@ A low-cost IoT prototype that measures water level with magnetic float sensors, 
 
 Built as a vocational high school project funded by a **FACEPE Innovation Grant (BFI)**, aimed at flood monitoring for rivers in the Recife metropolitan area. The prototype was tested on a water-tank mock-up that simulates a river.
 
-<!-- Add a screenshot or GIF of the dashboard here, e.g. ![Dashboard](docs/dashboard.png) -->
+<table>
+  <tr>
+    <td align="center"><img src="docs/prints/main-screen.png" alt="Main screen with the water level gauge" width="100%"></td>
+    <td align="center"><img src="docs/prints/calendar.png" alt="History calendar with the maximum level of the selected day" width="100%"></td>
+    <td align="center"><img src="docs/prints/map.png" alt="Map of monitoring sites with a status popup" width="100%"></td>
+    <td align="center"><img src="docs/prints/notification.png" alt="New reading notification" width="100%"></td>
+    <td align="center"><img src="docs/prints/edit.png" alt="Admin screen to manage monitoring sites" width="100%"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Live gauge</sub></td>
+    <td align="center"><sub>History calendar</sub></td>
+    <td align="center"><sub>Sites map</sub></td>
+    <td align="center"><sub>New reading alert</sub></td>
+    <td align="center"><sub>Admin panel</sub></td>
+  </tr>
+</table>
+
+<sub>The interface is in Portuguese (pt-BR).</sub>
 
 ## How it works
 
@@ -47,7 +64,7 @@ river-level-monitor/
 │   ├── esp32-sensor/    Reads the 4 sensors and posts levels to the API
 │   └── cyd-display/     ESP32 touchscreen dashboard (LVGL)
 ├── database/schema.sql  Tables and sample data
-└── docs/                Photos, wiring diagram, screenshots
+└── docs/prints/         Screenshots used in this README
 ```
 
 ## Hardware
